@@ -22,8 +22,8 @@ export default function SettingsScreen({
       style={{
         position: "absolute",
         inset: 0,
-        paddingTop: 60,
-        paddingBottom: 110,
+        paddingTop: "calc(env(safe-area-inset-top) + 12px)",
+        paddingBottom: "calc(env(safe-area-inset-bottom) + 100px)",
         overflow: "auto",
       }}
     >

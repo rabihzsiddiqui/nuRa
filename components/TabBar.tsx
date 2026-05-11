@@ -24,7 +24,7 @@ export default function TabBar({ screen, setScreen, dark, p }: TabBarProps) {
         position: "absolute",
         left: 16,
         right: 16,
-        bottom: 22,
+        bottom: "calc(env(safe-area-inset-bottom) + 8px)",
         height: 76,
         background: dark ? "rgba(51,35,29,0.96)" : "rgba(255,255,255,0.94)",
         borderRadius: 26,

@@ -89,7 +89,7 @@ export default function ModalSheet({
           background: p.surface,
           borderTopLeftRadius: 36,
           borderTopRightRadius: 36,
-          padding: "14px 24px 30px",
+          padding: "14px 24px calc(30px + env(safe-area-inset-bottom))",
           boxShadow: "0 -12px 40px rgba(0,0,0,0.20)",
           transform: closing ? "translateY(100%)" : "translateY(0)",
           transition: closing

@@ -2,10 +2,9 @@
 
 import { useState, useEffect, useMemo } from "react";
 import type { Screen, AppSettings, SeverityLevel } from "@/lib/types";
-import { getPalette, applyWarmth } from "@/lib/theme";
+import { getPalette, applyWarmth, fontBody } from "@/lib/theme";
 import { loadSettings, saveSettings } from "@/lib/storage";
 import { logSymptom } from "@/lib/db/queries";
-import PhoneShell from "./PhoneShell";
 import TabBar from "./TabBar";
 import HomeScreen from "./HomeScreen";
 import ModalSheet from "./ModalSheet";
@@ -58,56 +57,63 @@ export default function SymptomTracker() {
   return (
     <div
       style={{
-        minHeight: "100vh",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "40px 20px",
-        background: dark ? "#15100c" : "#efeae0",
+        position: "fixed",
+        inset: 0,
+        background: p.bg,
+        color: p.ink,
+        fontFamily: fontBody,
+        fontSize: 16 * settings.textScale,
+        overflow: "hidden",
       }}
     >
-      <PhoneShell dark={dark} p={p} textScale={settings.textScale}>
-        {screen === "log" && (
-          <HomeScreen
-            onOpenModal={openModal}
-            dark={dark}
-            p={p}
-            savedFlash={savedFlash}
-          />
-        )}
-        {screen === "timeline" && (
-          <TimelineScreen
-            dark={dark}
-            p={p}
-            cbMode={settings.cbMode}
-          />
-        )}
-        {screen === "settings" && (
-          <SettingsScreen
-            settings={settings}
-            onUpdate={updateSettings}
-            dark={dark}
-            p={p}
-          />
-        )}
-
-        <ModalSheet
-          open={!!modalSid}
-          sid={modalSid}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          pointerEvents: "none",
+          background: p.wash,
+        }}
+      />
+      {screen === "log" && (
+        <HomeScreen
+          onOpenModal={openModal}
+          dark={dark}
+          p={p}
+          savedFlash={savedFlash}
+        />
+      )}
+      {screen === "timeline" && (
+        <TimelineScreen
           dark={dark}
           p={p}
           cbMode={settings.cbMode}
-          onClose={closeModal}
-          onSave={saveEntry}
         />
-
-        <TabBar
-          screen={screen}
-          setScreen={setScreen}
+      )}
+      {screen === "settings" && (
+        <SettingsScreen
+          settings={settings}
+          onUpdate={updateSettings}
           dark={dark}
           p={p}
         />
-      </PhoneShell>
+      )}
+
+      <ModalSheet
+        open={!!modalSid}
+        sid={modalSid}
+        dark={dark}
+        p={p}
+        cbMode={settings.cbMode}
+        onClose={closeModal}
+        onSave={saveEntry}
+      />
+
+      <TabBar
+        screen={screen}
+        setScreen={setScreen}
+        dark={dark}
+        p={p}
+      />
     </div>
   );
 }
