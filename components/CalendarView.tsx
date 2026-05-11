@@ -1,22 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import type { Entry, ThemePalette, CbMode } from "@/lib/types";
+import type { ThemePalette, CbMode } from "@/lib/types";
+import type { SymptomEntry } from "@/lib/db/types";
 import { fontDisplay, fontBody, fontMono } from "@/lib/theme";
 import TimelineRow from "./TimelineRow";
 
 interface CalendarViewProps {
-  entries: Entry[];
+  entries: SymptomEntry[];
   dark: boolean;
   p: ThemePalette;
   cbMode: CbMode;
-}
-
-function dateFromDayOffset(off: number): Date {
-  const d = new Date();
-  d.setHours(0, 0, 0, 0);
-  d.setDate(d.getDate() - off);
-  return d;
 }
 
 function ymd(d: Date): string {
@@ -53,11 +47,9 @@ export default function CalendarView({
   const [viewMonth, setViewMonth] = useState(() => startOfMonth(today));
   const [selectedKey, setSelectedKey] = useState(() => ymd(today));
 
-  // build map: ymd -> entries
-  const byDay: Record<string, Entry[]> = {};
+  const byDay: Record<string, SymptomEntry[]> = {};
   for (const e of entries) {
-    const d = dateFromDayOffset(e.day);
-    const k = ymd(d);
+    const k = ymd(new Date(e.occurredAt));
     byDay[k] = byDay[k] ?? [];
     byDay[k].push(e);
   }
@@ -82,8 +74,8 @@ export default function CalendarView({
   const goNext = () =>
     setViewMonth(new Date(month.getFullYear(), month.getMonth() + 1, 1));
 
-  const dayWeight = (es: Entry[]) =>
-    Math.max(0, ...es.map((e) => SEV_RANK[e.sev] ?? 0));
+  const dayWeight = (es: SymptomEntry[]) =>
+    Math.max(0, ...es.map((e) => SEV_RANK[e.severity] ?? 0));
 
   const selectedDayEntries = byDay[selectedKey] ?? [];
   const [sy, sm, sd] = selectedKey.split("-").map(Number);
@@ -295,7 +287,7 @@ function CalendarCell({
   cbMode,
 }: {
   date: Date;
-  entries: Entry[];
+  entries: SymptomEntry[];
   weight: number;
   isToday: boolean;
   isFuture: boolean;

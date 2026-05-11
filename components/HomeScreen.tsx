@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useLiveQuery } from "dexie-react-hooks";
 import type { ThemePalette } from "@/lib/types";
 import { fontDisplay } from "@/lib/theme";
-import { SYMPTOMS } from "@/lib/symptoms";
+import { db } from "@/lib/db/database";
 import Icon from "./Icon";
 
 interface HomeScreenProps {
@@ -14,6 +15,12 @@ interface HomeScreenProps {
 }
 
 export default function HomeScreen({ onOpenModal, dark, p, savedFlash }: HomeScreenProps) {
+  const symptoms =
+    useLiveQuery(async () => {
+      const all = await db.symptoms.toArray();
+      return all.filter((s) => !s.isArchived).sort((a, b) => a.position - b.position);
+    }, []) ?? [];
+
   return (
     <div
       style={{
@@ -52,11 +59,11 @@ export default function HomeScreen({ onOpenModal, dark, p, savedFlash }: HomeScr
             gap: 12,
           }}
         >
-          {SYMPTOMS.map((s) => (
+          {symptoms.map((s) => (
             <SymptomTile
               key={s.id}
               id={s.id}
-              label={s.label}
+              label={s.name}
               onClick={() => onOpenModal(s.id)}
               dark={dark}
               p={p}

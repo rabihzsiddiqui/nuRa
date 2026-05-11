@@ -1,20 +1,25 @@
-import type { Entry, ThemePalette, CbMode } from "@/lib/types";
+import type { ThemePalette, CbMode } from "@/lib/types";
+import type { SymptomEntry } from "@/lib/db/types";
 import { fontDisplay, fontMono, getSevStyle } from "@/lib/theme";
 import { SYMPTOM_BY_ID, SEV_LABELS } from "@/lib/symptoms";
 import Icon from "./Icon";
 import SevDots from "./SevDots";
 
 interface TimelineRowProps {
-  e: Entry;
+  e: SymptomEntry;
   dark: boolean;
   p: ThemePalette;
   cbMode: CbMode;
 }
 
 export default function TimelineRow({ e, dark, p, cbMode }: TimelineRowProps) {
-  const s = SYMPTOM_BY_ID[e.sid];
-  const tone = p.tileTones[e.sid] ?? { bg: p.surfaceAlt, ink: p.ink };
-  const sev = getSevStyle({ level: e.sev, dark, cbMode, variant: "button" });
+  const s = SYMPTOM_BY_ID[e.symptomId];
+  const tone = p.tileTones[e.symptomId] ?? { bg: p.surfaceAlt, ink: p.ink };
+  const sev = getSevStyle({ level: e.severity, dark, cbMode, variant: "button" });
+  const time = new Date(e.occurredAt).toLocaleTimeString([], {
+    hour: "numeric",
+    minute: "2-digit",
+  });
 
   return (
     <div
@@ -41,7 +46,7 @@ export default function TimelineRow({ e, dark, p, cbMode }: TimelineRowProps) {
           flexShrink: 0,
         }}
       >
-        <Icon name={e.sid} size={22} color={tone.ink} stroke={1.8} />
+        <Icon name={e.symptomId} size={22} color={tone.ink} stroke={1.8} />
       </div>
 
       {/* content */}
@@ -56,7 +61,7 @@ export default function TimelineRow({ e, dark, p, cbMode }: TimelineRowProps) {
             lineHeight: 1.1,
           }}
         >
-          {s?.label ?? e.sid}
+          {s?.label ?? e.symptomId}
         </div>
         <div
           style={{
@@ -77,9 +82,9 @@ export default function TimelineRow({ e, dark, p, cbMode }: TimelineRowProps) {
                 : "none",
           }}
         >
-          <span>{SEV_LABELS[e.sev]}</span>
+          <span>{SEV_LABELS[e.severity]}</span>
           {sev.showDots && (
-            <SevDots level={e.sev} color={sev.dotColor} size={5} gap={2} />
+            <SevDots level={e.severity} color={sev.dotColor} size={5} gap={2} />
           )}
         </div>
         {e.note && (
@@ -108,7 +113,7 @@ export default function TimelineRow({ e, dark, p, cbMode }: TimelineRowProps) {
           flexShrink: 0,
         }}
       >
-        {e.time}
+        {time}
       </div>
     </div>
   );

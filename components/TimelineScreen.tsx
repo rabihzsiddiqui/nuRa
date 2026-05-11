@@ -1,36 +1,63 @@
 "use client";
 
 import { useState } from "react";
-import type { Entry, ThemePalette, CbMode, TimelineView } from "@/lib/types";
+import { useLiveQuery } from "dexie-react-hooks";
+import type { ThemePalette, CbMode, TimelineView } from "@/lib/types";
+import type { SymptomEntry } from "@/lib/db/types";
 import { fontDisplay, fontMono } from "@/lib/theme";
-import { dayLabel, dayDate } from "@/lib/symptoms";
+import { db } from "@/lib/db/database";
 import TimelineRow from "./TimelineRow";
 import CalendarView from "./CalendarView";
 
 interface TimelineScreenProps {
-  entries: Entry[];
   dark: boolean;
   p: ThemePalette;
   cbMode: CbMode;
 }
 
-export default function TimelineScreen({
-  entries,
-  dark,
-  p,
-  cbMode,
-}: TimelineScreenProps) {
+function toDayKey(ts: number): string {
+  const d = new Date(ts);
+  return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+}
+
+function dayKeyToDate(key: string): Date {
+  const [y, m, d] = key.split("-").map(Number);
+  return new Date(y, m, d);
+}
+
+function dayLabel(key: string): string {
+  const date = dayKeyToDate(key);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const diff = Math.round((today.getTime() - date.getTime()) / 86400000);
+  if (diff === 0) return "Today";
+  if (diff === 1) return "Yesterday";
+  return `${diff} days ago`;
+}
+
+function dayDate(key: string): string {
+  return dayKeyToDate(key).toLocaleDateString(undefined, {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+}
+
+export default function TimelineScreen({ dark, p, cbMode }: TimelineScreenProps) {
   const [view, setView] = useState<TimelineView>("day");
 
-  // group by day index
-  const grouped: Record<number, Entry[]> = {};
+  const entries =
+    useLiveQuery(() => db.symptomEntries.orderBy("occurredAt").reverse().toArray(), []) ?? [];
+
+  const grouped: Record<string, SymptomEntry[]> = {};
   for (const e of entries) {
-    grouped[e.day] = grouped[e.day] ?? [];
-    grouped[e.day].push(e);
+    const key = toDayKey(e.occurredAt);
+    grouped[key] = grouped[key] ?? [];
+    grouped[key].push(e);
   }
-  const dayKeys = Object.keys(grouped)
-    .map(Number)
-    .sort((a, b) => a - b);
+
+  // keys arrive newest-first because entries are sorted newest-first
+  const dayKeys = Object.keys(grouped);
 
   return (
     <div
@@ -65,7 +92,7 @@ export default function TimelineScreen({
               marginBottom: 16,
             }}
           >
-            {entries.length} entries &middot; take this to your appointment
+            {entries.length}{" "}entries &middot; take this to your appointment
           </div>
 
           {/* view toggle */}
@@ -115,8 +142,8 @@ export default function TimelineScreen({
         )}
 
         {view === "day" &&
-          dayKeys.map((d) => (
-            <div key={d} style={{ marginBottom: 24 }}>
+          dayKeys.map((key) => (
+            <div key={key} style={{ marginBottom: 24 }}>
               <div
                 style={{
                   display: "flex",
@@ -134,7 +161,7 @@ export default function TimelineScreen({
                     letterSpacing: -0.2,
                   }}
                 >
-                  {dayLabel(d)}
+                  {dayLabel(key)}
                 </div>
                 <div
                   style={{
@@ -144,11 +171,11 @@ export default function TimelineScreen({
                     letterSpacing: 0.5,
                   }}
                 >
-                  {dayDate(d)}
+                  {dayDate(key)}
                 </div>
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                {grouped[d].map((e) => (
+                {grouped[key].map((e) => (
                   <TimelineRow
                     key={e.id}
                     e={e}

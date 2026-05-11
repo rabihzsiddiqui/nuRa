@@ -1,5 +1,5 @@
-import SymptomTracker from "@/components/SymptomTracker";
+import ClientRoot from "@/components/ClientRoot";
 
 export default function Home() {
-  return <SymptomTracker />;
+  return <ClientRoot />;
 }

@@ -1,14 +1,10 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-import type { Entry, Screen, AppSettings, SeverityLevel } from "@/lib/types";
+import type { Screen, AppSettings, SeverityLevel } from "@/lib/types";
 import { getPalette, applyWarmth } from "@/lib/theme";
-import {
-  loadEntries,
-  saveEntries,
-  loadSettings,
-  saveSettings,
-} from "@/lib/storage";
+import { loadSettings, saveSettings } from "@/lib/storage";
+import { logSymptom } from "@/lib/db/queries";
 import PhoneShell from "./PhoneShell";
 import TabBar from "./TabBar";
 import HomeScreen from "./HomeScreen";
@@ -18,20 +14,13 @@ import SettingsScreen from "./SettingsScreen";
 
 export default function SymptomTracker() {
   const [settings, setSettings] = useState<AppSettings>(() => loadSettings());
-  const [entries, setEntries] = useState<Entry[]>(() => loadEntries());
   const [screen, setScreen] = useState<Screen>("log");
   const [modalSid, setModalSid] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
 
-  // persist settings
   useEffect(() => {
     saveSettings(settings);
   }, [settings]);
-
-  // persist entries
-  useEffect(() => {
-    saveEntries(entries);
-  }, [entries]);
 
   const updateSettings = (patch: Partial<AppSettings>) => {
     setSettings((prev) => ({ ...prev, ...patch }));
@@ -54,7 +43,7 @@ export default function SymptomTracker() {
     }
   };
 
-  const saveEntry = ({
+  const saveEntry = async ({
     sid,
     sev,
     note,
@@ -63,14 +52,7 @@ export default function SymptomTracker() {
     sev: SeverityLevel;
     note: string;
   }) => {
-    const time = new Date().toLocaleTimeString([], {
-      hour: "numeric",
-      minute: "2-digit",
-    });
-    setEntries((prev) => [
-      { id: Date.now(), sid, sev, time, day: 0, note },
-      ...prev,
-    ]);
+    await logSymptom({ symptomId: sid, severity: sev, note: note || undefined });
   };
 
   return (
@@ -95,7 +77,6 @@ export default function SymptomTracker() {
         )}
         {screen === "timeline" && (
           <TimelineScreen
-            entries={entries}
             dark={dark}
             p={p}
             cbMode={settings.cbMode}
