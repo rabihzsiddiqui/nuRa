@@ -8,7 +8,7 @@ export const DEFAULT_SETTINGS: AppSettings = {
   darkMode: false,
   darkModeAuto: "off",
   darkModeStart: "20:00",
-  darkModeEnd: "07:00",
+  darkModeEnd: "06:00",
   cbMode: "off",
   textScale: 1,
   warmth: 1,

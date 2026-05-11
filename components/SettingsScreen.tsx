@@ -278,7 +278,7 @@ function DarkModeSection({
   const sub = isCustom
     ? `Switches at ${fmt(settings.darkModeStart)}, off at ${fmt(settings.darkModeEnd)}.`
     : isAuto
-    ? "Switches at 8pm, off at 7am."
+    ? "Lights on at 6am, lights off at 8pm."
     : settings.darkMode
     ? "Currently dark."
     : "Currently light.";

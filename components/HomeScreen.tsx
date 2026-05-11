@@ -135,11 +135,8 @@ function SymptomTile({
   const tone = p.tileTones[id] ?? { bg: p.surfaceAlt, ink: p.ink };
 
   return (
-    <div
-      className="tile-in"
-      style={{ animationDelay: `${index * 55}ms` }}
-    >
     <button
+      className="tile-in"
       onClick={onClick}
       onPointerDown={() => setPressed(true)}
       onPointerUp={() => setPressed(false)}
@@ -152,6 +149,7 @@ function SymptomTile({
         flexDirection: "column",
         justifyContent: "space-between",
         height: 132,
+        width: "100%",
         position: "relative",
         overflow: "hidden",
         border: `1px solid ${dark ? "rgba(245,228,205,0.06)" : "rgba(42,53,40,0.04)"}`,
@@ -161,6 +159,7 @@ function SymptomTile({
         fontFamily: "inherit",
         transform: pressed ? "scale(0.97)" : "scale(1)",
         transition: "transform 120ms ease, box-shadow 120ms ease",
+        animationDelay: `${index * 55}ms`,
       }}
     >
       {/* decorative leaf */}
@@ -189,6 +188,5 @@ function SymptomTile({
         {label}
       </div>
     </button>
-    </div>
   );
 }
