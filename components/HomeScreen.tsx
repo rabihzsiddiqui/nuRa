@@ -83,7 +83,7 @@ export default function HomeScreen({ onOpenModal, dark, p, savedFlash }: HomeScr
             opacity: 0.75,
           }}
         >
-          — there&apos;s no wrong answer —
+          there&apos;s no wrong answer
         </div>
       </div>
 
